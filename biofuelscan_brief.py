@@ -252,7 +252,7 @@ PROMPT_TEMPLATE = """你是一名专业的生物燃料/油脂市场翻译兼分�
 <h3>生物柴油 / 生物船燃 / 碳信用</h3><ul><li>……</li>…</ul>
 <h3>可再生柴油 RD / 可持续航空燃料 SAF</h3><ul><li>……</li>…</ul>
 <h3>原料 Feedstocks</h3><ul><li>……</li>…</ul>
-<h3>行业新闻 News &amp; Insights</h3><ul><li><strong>（标题）：</strong>一句话要点</li>…</ul>
+<h3>行业新闻 News &amp; Insights</h3><ul><li><strong>（标题）：</strong>相关性高的写 1-2 句影响；其余一句话</li>…</ul>
 <h3>乙醇 Ethanol（概览）</h3><ul><li>……</li></ul>
 报告正文如下：
 ----------
