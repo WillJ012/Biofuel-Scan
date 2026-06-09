@@ -233,21 +233,27 @@ PROMPT_TEMPLATE = """你是一名专业的生物燃料/油脂市场翻译兼分�
 
 报告正文按品类组织，通常包含：乙醇(Ethanol)、生物柴油/生物船燃/碳信用(Biodiesel, Biobunkers and Credits)、可再生柴油与可持续航空燃料(Renewable Diesel & SAF)、原料(Feedstocks)，以及行业新闻(News and Insights)。
 
-请把这些正文**翻译并总结成一份简洁、信息密度高的中文晨报**：
-1. 按品类板块组织，每个板块用 2-5 条要点概括当日核心动态。
-2. **保留所有具体数字**（价格、涨跌幅、合约月份、机构与人名、百分比）。
-3. 行业新闻(News and Insights)单列一个板块，每条一句话要点。
-4. 术语用中文，必要处保留英文缩写：UCOME、UCO、FAME、RME、PME、SME、HVO、RD、SAF、POME、PFAD、DCO、RINs(D4/D5/D6)、RVO、LCFS、CFP、CFR、ETBE、CBIO、RTFC、ERE、THG、FOB ARA、FOB Straits、CBOT、BMD CPO、ICE gasoil、ULSD、BO-HO、CI、RED III 等。
+请把这些正文**翻译并总结成一份中文晨报**，按品类详略分明：
+1. **详写**生物柴油/生物船燃/碳信用、可再生柴油RD、可持续航空燃料SAF 这三大块——
+   每块多给几条要点（4-7 条），把价差、利润率(margin/BO-HO)、原料联动、政策(RED III、45Z、LCFS等)、
+   供需与成交逻辑都讲清楚，保留所有具体数字。
+2. **乙醇(Ethanol)一笔带过**——只用 1-2 条概括当日方向和最关键的一两个价格，不展开。
+3. **原料(Feedstocks)详写**——4-6 条，UCO/POME/PFAD/tallow/DCO 等逐个讲清当日方向、
+   关键价格与涨跌、地区价差(如 FOB China vs FOB Straits、Malaysia vs Indonesia)、
+   与下游 BD/RD/SAF 的联动逻辑，保留所有具体数字。
+4. 行业新闻(News and Insights)单列，按相关性分详略：
+   **凡涉及 BD/RD/SAF/原料的新闻多写 1-2 句**，把对供需、价格或政策的影响讲透；
+   其余新闻一句话带过。
+5. 术语用中文，必要处保留英文缩写：UCOME、UCO、FAME、RME、PME、SME、HVO、RD、SAF、POME、PFAD、DCO、RINs(D4/D5/D6)、RVO、LCFS、CFP、CFR、ETBE、CBIO、RTFC、ERE、THG、FOB ARA、FOB Straits、CBOT、BMD CPO、ICE gasoil、ULSD、BO-HO、CI、RED III 等。
 
-输出要求：**只输出最终 HTML 片段，不要任何思考过程、说明或前言**。不要 markdown、不要 ```、不要 <html>/<body> 外壳。第一行必须就是标题，严格按下面结构：
+输出要求：**只输出最终 HTML 片段，不要任何思考过程、说明或前言**。不要 markdown、不要 ```、不要 <html>/<body> 外壳。第一行必须就是标题，严格按下面结构（注意乙醇放最后且最简）：
 <h2>{date} Platts BiofuelScan 生柴/油脂简报</h2>
-<p><strong>核心：</strong>……一两句当日总览……</p>
-<h3>乙醇 Ethanol</h3><ul><li>……</li>…</ul>
+<p><strong>核心：</strong>……三四句当日总览，侧重 BD/RD/SAF……</p>
 <h3>生物柴油 / 生物船燃 / 碳信用</h3><ul><li>……</li>…</ul>
 <h3>可再生柴油 RD / 可持续航空燃料 SAF</h3><ul><li>……</li>…</ul>
 <h3>原料 Feedstocks</h3><ul><li>……</li>…</ul>
 <h3>行业新闻 News &amp; Insights</h3><ul><li><strong>（标题）：</strong>一句话要点</li>…</ul>
-
+<h3>乙醇 Ethanol（概览）</h3><ul><li>……</li></ul>
 报告正文如下：
 ----------
 {body}
