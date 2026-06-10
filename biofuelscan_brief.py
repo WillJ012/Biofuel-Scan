@@ -245,10 +245,13 @@ PROMPT_TEMPLATE = """你是一名专业的生物燃料/油脂市场翻译兼分�
    **凡涉及 BD/RD/SAF/原料的新闻多写 1-2 句**，把对供需、价格或政策的影响讲透；
    其余新闻一句话带过。
 5. 术语用中文，必要处保留英文缩写：UCOME、UCO、FAME、RME、PME、SME、HVO、RD、SAF、POME、PFAD、DCO、RINs(D4/D5/D6)、RVO、LCFS、CFP、CFR、ETBE、CBIO、RTFC、ERE、THG、FOB ARA、FOB Straits、CBOT、BMD CPO、ICE gasoil、ULSD、BO-HO、CI、RED III 等。
+6. **核心总览**侧重 BD/RD/SAF；若当日有美国原料(US feedstock)消息——
+   如 tallow、UCO、DCO 的价格/供需变化，进口关税(tariff)、45Z、RFS/RVO/RIN 政策，
+   或 US RD/SAF 原料端动态——优先在核心里点出，没有则不必提。
 
 输出要求：**只输出最终 HTML 片段，不要任何思考过程、说明或前言**。不要 markdown、不要 ```、不要 <html>/<body> 外壳。第一行必须就是标题，严格按下面结构（注意乙醇放最后且最简）：
 <h2>{date} Platts BiofuelScan 生柴/油脂简报</h2>
-<p><strong>核心：</strong>……三四句当日总览，侧重 BD/RD/SAF……</p>
+<p><strong>核心：</strong>……三四句当日总览，侧重 BD/RD/SAF；有美国原料相关消息时优先点出……</p>
 <h3>生物柴油 / 生物船燃 / 碳信用</h3><ul><li>……</li>…</ul>
 <h3>可再生柴油 RD / 可持续航空燃料 SAF</h3><ul><li>……</li>…</ul>
 <h3>原料 Feedstocks</h3><ul><li>……</li>…</ul>
