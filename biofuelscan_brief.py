@@ -229,6 +229,44 @@ def _stitch(lines):
 # ──────────────────────────────────────────────────────────────────────────
 # 三、MiniMax：翻译 + 按板块总结成中文 HTML
 # ──────────────────────────────────────────────────────────────────────────
+# 术语对照表（强制固定译法；保留项一律纯缩写、不带中文全称）
+GLOSSARY = """【固定术语对照（必须遵守；保留项直接用英文缩写，不要附中文全称）】
+产品/油种：
+- gasoil / ICE gasoil → 「柴油(gasoil)」/「ICE gasoil」，严禁译成「气油」
+- ULSD→超低硫柴油(ULSD)；LSGO→低硫柴油(LSGO)
+- RD-A / RD-B 保留（分别为 Annex IX-A / IX-B 原料路线可再生柴油）
+- HVO / SAF / SPK / HEFA / FAME / RME / PME / SME / UCOME 保留缩写
+- B24/B30/B40/B50/B99/B100 保留
+- feedstock→原料；UCO 保留；POME / PFAD / DCO 保留；tallow→牛油(tallow)
+- crude palm oil / CPO→棕榈原油(CPO)
+价格/结构：
+- outright / flat price → 统一译「绝对价」
+- premium→升水；discount→贴水；spread→价差
+- BO-HO→豆油-取暖油价差(BO-HO)；BO-GO→豆油-柴油价差；PO-GO→棕榈油-柴油价差
+- margin→利润/利润率；crush margin→压榨利润
+- backwardation→逆价差（近高远低）；contango→正价差（近低远高）
+- basis→基差；netback→回岸价(netback)
+交易/评估机制：
+- MOC (Market on Close)→收盘评估(MOC)
+- heard→据闻
+- bid/offer/trade→买价/卖价/成交
+- assessed→评估为；indicative→指示性
+- laycan→装期(laycan)；loading→装运
+- cargo→整船货(cargo)；barge→驳船(barge)；tradable→可成交
+- FOB/CIF/CFR/DAP、FOB ARA/FOB Straits/FOB FARAG 保留
+政策/碳信用：
+- RED II / RED III、RINs(D3/D4/D5/D6) 保留
+- RVO→可再生燃料掺混义务(RVO)
+- LCFS→低碳燃料标准(LCFS)；CFP→清洁燃料计划(CFP)；CFS→清洁燃料标准(CFS)
+- 45Z / CFPC→45Z 清洁燃料生产抵免(CFPC)；CI→碳强度(CI)
+- GHG savings→温室气体减排率(GHG savings)
+- CBIO / RTFC / ERE / THG 保留；ticket→合规凭证(ticket)
+- mandate→强制掺混令/掺混义务；crop cap→作物原料上限(crop cap)
+机构/数据：
+- EIA→美国能源信息署(EIA)；USDA→美国农业部(USDA)；WASDE 保留
+- CBOT / BMD / ICE / NYMEX 保留；BMD CPO→马来交易所棕榈油期货(BMD CPO)
+未列出的英文术语按行业惯例翻译；拿不准的保留英文。"""
+
 PROMPT_TEMPLATE = """你是一名专业的生物燃料/油脂市场翻译兼分析师。下面是 Platts BiofuelScan（标普全球）每日报告中抽取出来的正文部分（双栏 PDF 抽取，已剔除价格数据表、走势图和原始 bid/offer/trade 记录，可能残留少量排版瑕疵，请结合上下文阅读）。
 
 报告正文按品类组织，通常包含：乙醇(Ethanol)、生物柴油/生物船燃/碳信用(Biodiesel, Biobunkers and Credits)、可再生柴油与可持续航空燃料(Renewable Diesel & SAF)、原料(Feedstocks)，以及行业新闻(News and Insights)。
