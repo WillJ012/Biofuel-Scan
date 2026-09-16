@@ -5,6 +5,11 @@ name: daily-biofuelscan-brief
 #   2) schedule —— GitHub 自带定时(00:30 UTC = 08:30 北京)。仅作兜底，常有数分钟~数小时延迟甚至不触发，别依赖它。
 on:
   workflow_dispatch:
+    inputs:
+      test_to:
+        description: "测试收件地址：填了就只发这个地址；留空 = 按正常收件人发（cron-job.org 定时走的这条）"
+        required: false
+        default: ""
 
 
 # 避免重叠运行
@@ -44,7 +49,7 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           SMTP_SSL:  ${{ secrets.SMTP_SSL }}
-          MAIL_TO:   ${{ secrets.MAIL_TO }}
+          MAIL_TO:   ${{ inputs.test_to || secrets.MAIL_TO }}
           MAIL_FROM: ${{ secrets.MAIL_FROM }}
           # 邮件识别
           SUBJECT_CONTAINS: ${{ secrets.SUBJECT_CONTAINS }}
