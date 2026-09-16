@@ -51,7 +51,13 @@ jobs:
           SENDER_CONTAINS:  ${{ secrets.SENDER_CONTAINS }}
           ATTACH_PATTERN:   ${{ secrets.ATTACH_PATTERN }}
           LOOKBACK_DAYS:    ${{ secrets.LOOKBACK_DAYS }}
-          # MiniMax
+          # 大模型（OpenAI 兼容）
+          LLM_API_KEY:    ${{ secrets.LLM_API_KEY }}
+          LLM_BASE_URL:   ${{ secrets.LLM_BASE_URL }}
+          LLM_MODEL:      ${{ secrets.LLM_MODEL }}
+          LLM_MAX_TOKENS: ${{ secrets.LLM_MAX_TOKENS }}
+          # 过渡期兼容：LLM_API_KEY 为空时，脚本回退用到下面这三个旧名字。
+          # 确认 LLM_API_KEY 生效、云端跑通后，这三行和脚本里的回退可以一起删掉。
           MINIMAX_API_KEY:  ${{ secrets.MINIMAX_API_KEY }}
           MINIMAX_BASE_URL: ${{ secrets.MINIMAX_BASE_URL }}
           MODEL:            ${{ secrets.MODEL }}
