@@ -97,6 +97,8 @@ your-repo/
 ### 手动测试
 仓库 → Actions → 选 `daily-biofuelscan-brief` → Run workflow。看日志：出现「命中邮件 / 正文抽取完成 / 已发送」即成功，邮箱应收到简报。
 
+**只想发给自己**：点 Run workflow 时在 `test_to` 输入框里填你自己的邮箱，这次运行就只发这个地址，不会打扰正常收件人；留空则按 `MAIL_TO` 正常发送（cron-job.org 定时走的也是这条）。
+
 ### 每天定时（推荐：cron-job.org 外部触发）
 GitHub 自带的 `schedule` 不稳（Vegoil 已踩坑），所以用 cron-job.org 每天 08:30 北京时间用 GitHub API 触发 workflow：
 
