@@ -5,11 +5,11 @@
   1) 登录邮箱(IMAP)，找到最新一封 Platts BiofuelScan newsletter，下载其 PDF 附件(BF_YYYYMMDD.pdf)
   2) 抽取 PDF 里的「Market Commentary + News and Insights」正文（双栏排版，自动忽略价格表/走势图/
      Heards 原始数据/Assessments Rationale/期货表）
-  3) 用 MiniMax 把正文翻译并按板块总结成一份中文晨报
+  3) 用大模型把正文翻译并按板块总结成一份中文晨报
   4) 通过 SMTP 把简报发到指定邮箱
 
 配置全部来自环境变量（GitHub Secrets / 本地 .env / export 均可）。
-与 Vegoil-Commentary 项目共用的 Secret（IMAP/SMTP/MINIMAX_*）可直接复用。
+与 Vegoil-Commentary 项目共用的 Secret（IMAP/SMTP/LLM_*）可直接复用。
 """
 
 import os, re, io, ssl, sys, imaplib, smtplib
@@ -53,10 +53,13 @@ SENDER_CONTAINS  = env("SENDER_CONTAINS", "platts").lower()
 ATTACH_PATTERN   = re.compile(env("ATTACH_PATTERN", r"BF_\d{8}\.pdf"), re.I)  # 锁定 BF_YYYYMMDD.pdf
 LOOKBACK_DAYS    = int(env("LOOKBACK_DAYS", "4"))         # 往回找几天的邮件
 
-# MiniMax（OpenAI 兼容）
-MINIMAX_API_KEY  = env("MINIMAX_API_KEY")
-MINIMAX_BASE_URL = env("MINIMAX_BASE_URL", "https://api.minimax.io/v1")
-MODEL            = env("MODEL", "MiniMax-M2.5")
+# 大模型（OpenAI 兼容接口）
+# 过渡期：优先读 LLM_*，没设时回退到旧的 MINIMAX_* / MODEL 名字（旧名字确认弃用后可删）
+LLM_API_KEY    = env("LLM_API_KEY") or env("MINIMAX_API_KEY")
+LLM_BASE_URL   = env("LLM_BASE_URL") or env("MINIMAX_BASE_URL") or "https://opencode.ai/zen/go/v1"
+LLM_MODEL      = env("LLM_MODEL") or env("MODEL") or "deepseek-v4.1-flash"
+# 输出上限。本报告是「按板块总结」，比 Vegoil 的全文翻译短；若报 400 说明服务端上限更低，调小即可。
+LLM_MAX_TOKENS = int(env("LLM_MAX_TOKENS", "16000"))
 
 def log(*a): print("[bf]", *a, flush=True)
 
@@ -227,7 +230,7 @@ def _stitch(lines):
     return "\n".join(paras)
 
 # ──────────────────────────────────────────────────────────────────────────
-# 三、MiniMax：翻译 + 按板块总结成中文 HTML
+# 三、大模型：翻译 + 按板块总结成中文 HTML
 # ──────────────────────────────────────────────────────────────────────────
 # 术语对照表（强制固定译法；保留项一律纯缩写、不带中文全称）
 GLOSSARY = """【固定术语对照（必须遵守；保留项直接用英文缩写，不要附中文全称）】
@@ -313,24 +316,27 @@ def _clean_model_html(text):
     return t.strip()
 
 def summarize_to_chinese(body, date_str):
-    if not MINIMAX_API_KEY:
-        raise RuntimeError("缺少 MINIMAX_API_KEY。")
-    client = OpenAI(api_key=MINIMAX_API_KEY, base_url=MINIMAX_BASE_URL)
+    if not LLM_API_KEY:
+        raise RuntimeError("缺少 LLM_API_KEY（也回退不到旧的 MINIMAX_API_KEY），请检查 GitHub Secrets。")
+    client = OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
     prompt = PROMPT_TEMPLATE.format(date=date_str, body=body)
-    log(f"调用 MiniMax({MODEL}) 生成中文简报，正文 {len(body)} 字符 ...")
+    log(f"调用模型 {LLM_MODEL} @ {LLM_BASE_URL} 生成中文简报，正文 {len(body)} 字符 ...")
     resp = client.chat.completions.create(
-        model=MODEL,
-        max_tokens=8000,
+        model=LLM_MODEL,
+        max_tokens=LLM_MAX_TOKENS,
         temperature=0.3,
         messages=[
             {"role": "system", "content": "你是一名严谨的大宗商品市场分析助理，输出简洁、数字准确、只给最终结果。"},
             {"role": "user", "content": prompt},
         ],
-        extra_body={"reasoning_split": True},   # 抑制 MiniMax 思考输出
     )
+    finish = resp.choices[0].finish_reason
     html = _clean_model_html(resp.choices[0].message.content or "")
     if not html:
-        raise RuntimeError("MiniMax 返回空内容，检查模型名/额度/base_url。")
+        raise RuntimeError(f"模型 {LLM_MODEL} 返回空内容，检查模型名/额度/base_url。")
+    if finish == "length":
+        log(f"警告：简报可能被长度上限截断（finish_reason=length，LLM_MAX_TOKENS={LLM_MAX_TOKENS}），"
+            "若结尾不完整请把它调大。")
     return html
 
 # ──────────────────────────────────────────────────────────────────────────
