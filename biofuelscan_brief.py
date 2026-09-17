@@ -54,10 +54,12 @@ ATTACH_PATTERN   = re.compile(env("ATTACH_PATTERN", r"BF_\d{8}\.pdf"), re.I)  # 
 LOOKBACK_DAYS    = int(env("LOOKBACK_DAYS", "4"))         # 往回找几天的邮件
 
 # 大模型（OpenAI 兼容接口）
-# 过渡期：优先读 LLM_*，没设时回退到旧的 MINIMAX_* / MODEL 名字（旧名字确认弃用后可删）
-LLM_API_KEY    = env("LLM_API_KEY") or env("MINIMAX_API_KEY")
-LLM_BASE_URL   = env("LLM_BASE_URL") or env("MINIMAX_BASE_URL") or "https://opencode.ai/zen/go/v1"
-LLM_MODEL      = env("LLM_MODEL") or env("MODEL") or "deepseek-v4.1-flash"
+# 注意：这里三个配置必须来自同一家。曾经做过“逐个变量回退到 MINIMAX_*/MODEL”的兼容，
+# 结果出现「新 key + 旧 endpoint」的错配，向 MiniMax 发 OpenCode 的 key 直接 401
+# （2026-09-17 就是这么漏发的）。要换服务就整套一起换，不要只改其中一个。
+LLM_API_KEY    = env("LLM_API_KEY")
+LLM_BASE_URL   = env("LLM_BASE_URL", "https://opencode.ai/zen/go/v1")
+LLM_MODEL      = env("LLM_MODEL", "deepseek-v4.1-flash")
 # 输出上限。本报告是「按板块总结」，比 Vegoil 的全文翻译短；若报 400 说明服务端上限更低，调小即可。
 LLM_MAX_TOKENS = int(env("LLM_MAX_TOKENS", "16000"))
 
@@ -317,7 +319,7 @@ def _clean_model_html(text):
 
 def summarize_to_chinese(body, date_str):
     if not LLM_API_KEY:
-        raise RuntimeError("缺少 LLM_API_KEY（也回退不到旧的 MINIMAX_API_KEY），请检查 GitHub Secrets。")
+        raise RuntimeError("缺少 LLM_API_KEY，请检查 GitHub Secrets。")
     client = OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
     prompt = PROMPT_TEMPLATE.format(date=date_str, body=body)
     log(f"调用模型 {LLM_MODEL} @ {LLM_BASE_URL} 生成中文简报，正文 {len(body)} 字符 ...")
