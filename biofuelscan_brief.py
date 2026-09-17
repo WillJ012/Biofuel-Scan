@@ -60,6 +60,13 @@ LOOKBACK_DAYS    = int(env("LOOKBACK_DAYS", "4"))         # 往回找几天的�
 LLM_API_KEY    = env("LLM_API_KEY")
 LLM_BASE_URL   = env("LLM_BASE_URL", "https://opencode.ai/zen/go/v1")
 LLM_MODEL      = env("LLM_MODEL", "deepseek-v4.1-flash")
+# OpenCode Zen 的 /zen/go/v1 是给 coding agent 用的端点，文档要求：
+#   1) 带上稳定的 x-opencode-session（用于路由与提示缓存），否则 400 MissingSessionID
+#   2) 客户端用自己的 User-Agent，不要用通用 SDK 的名字
+LLM_HEADERS = {
+    "x-opencode-session": "biofuelscan-daily-brief",
+    "User-Agent": "biofuelscan-brief/1.0",
+}
 # 输出上限。本报告是「按板块总结」，比 Vegoil 的全文翻译短；若报 400 说明服务端上限更低，调小即可。
 LLM_MAX_TOKENS = int(env("LLM_MAX_TOKENS", "16000"))
 
@@ -320,7 +327,7 @@ def _clean_model_html(text):
 def summarize_to_chinese(body, date_str):
     if not LLM_API_KEY:
         raise RuntimeError("缺少 LLM_API_KEY，请检查 GitHub Secrets。")
-    client = OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
+    client = OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL, default_headers=LLM_HEADERS)
     prompt = PROMPT_TEMPLATE.format(date=date_str, body=body)
     log(f"调用模型 {LLM_MODEL} @ {LLM_BASE_URL} 生成中文简报，正文 {len(body)} 字符 ...")
     resp = client.chat.completions.create(
